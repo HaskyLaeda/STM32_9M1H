@@ -49,9 +49,20 @@
     
     
     //-------- Main Message Buffer ------------------
-  char MMBuffer[MMBufferSize][MsgLength];   // Главный буффер сбора сообщений
+  char MMBuffer[MMBufferSize][MsgLength + 1];   // Главный буффер сбора сообщений
   char *MMBMsg[MMBufferSize];               // Указатели на конкретное сообщение в буффере
   volatile signed char NMMMBuffer = 0;      // Индикатор заполнености буффера
+  
+  char USART1_RX_MessageAr[SMSMsgLength + 1];             // Буффер входящего сообщения c USART1 модуля
+  char USART1_TX_MessageAr[SMSMsgLength + 1];             // Буффер исходящего сообщения на USART1 модуль
+  char *USART1_RX_Message = &USART1_RX_MessageAr[0];  // Указатель на буффер входящего сообщения c USART1 модуля  
+  char *USART1_TX_Message = &USART1_RX_MessageAr[0];  // Указатель на буффер исходящего сообщения на USART1 модуль
+  
+  
+  char TXGSMMessageAr[SMSMsgLength];        // Буффер исходящего сообщения на GSM модуль
+  char *RXGSMMessage = &RXGSMMessageAr[0];  // Указатель на буффер входящего сообщения c GSM модуля
+  char *TXGSMMessage = &TXGSMMessageAr[0];  // Указатель на буффер исходящего сообщения на GSM модуль
+
   
     //---------- Переменные GSM модуля --------------
   char RXGSMMessageAr[SMSMsgLength];        // Буффер входящего сообщения c GSM модуля
@@ -60,13 +71,46 @@
   char *TXGSMMessage = &TXGSMMessageAr[0];  // Указатель на буффер исходящего сообщения на GSM модуль
   
   
-  unsigned int function FormGSM_Message(unsigned char Byte)
-  {
-    
-    return 0;
-  }
   
+  unsigned int USART1_FormMessage(unsigned int Data) {
+   
+    l = strlen(USART1_RX_MessageAr);
+    USART1_RX_Message[l]=Data;    
+    USART1_RX_Message[l+1]=0x00;  
+    if ( l == 0 ) return 0;    
+//  if (Data == '>')
+//    {
+//      SetBits(GSMFC, ANGBR + RESMESS);
+//      return;
+//    }            
+      // Если ловим признак начала команды '>  ' обнуляем буффер и выходим
+    if ((USART1_RX_Message[l] == ' ') && (USART1_RX_Message[l-1] == '>')) {
+      USART1_RX_Message[0] = 0x00; 
+      return 0;      
+    }       
+      // Если ловим признак конца команды '\r\n' оно же 'CRLF', то ..
+    if ((USART1_RX_Message[l] == 0x0A) && (USART1_RX_Message[l-1] == 0x0D) || (l == SMSMsgLength) ) {      
+      if ((USART1_RX_Message[l] == 0x0A) && (USART1_RX_Message[l-1] == 0x0D)) USART1_RX_Message[l-1] = 0x00;      
+      switch (SendGSMResMessage(RXGSMMessage)) { // Пересылаем накопленное побайтно сообщение в главный буффер
+        case RET_OK: {        
+          GSMFlowResume();
+          break;
+        }
+        case RET_ERROR:{
+          SetBits(TREKSC2, MMBUFFULL); // Устанавливаем бит заполненности главного буффера
+          ErrorIndication(MainMsgBufFull, 1);
+          break;
+        }
+      }
+      RXGSMMessage[0] = 0x00;          // Обнуляем приемный буффер сообщений от GSM модуля
+      return 0;      
+    }
+    l++;
+    return 0;
+  }   
 
+
+  
 //   unsigned short int l = 0;
 //
 //  if (GetSetBit(IFG2, UCA0RXIFG))              // Если данные пришли с GSM модуля ...
