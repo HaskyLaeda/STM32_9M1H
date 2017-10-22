@@ -19,7 +19,7 @@
 #include "stm32f10x.h"
 
 //#include <stdio.h>
-//#include <string.h>
+#include <string.h>
 //#include <ctype.h>
 //#include <stdlib.h>
 //#include <stdbool.h>
@@ -32,10 +32,13 @@
   //-----------------------------------------------------------
   //    User aplication including headers
   //-----------------------------------------------------------
+   
 #include "interrupts.h"
 #include "DataTypes.h"
 #include "main.h"
 #include "UserConfig.h"
+#include "9M1H.h"
+
 
 
   //-----------------------------------------------------------

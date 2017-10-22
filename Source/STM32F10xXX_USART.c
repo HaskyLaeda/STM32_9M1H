@@ -8,8 +8,8 @@ void InitUSART1(void)
 //  USART1->CR1 &= ~USART_PS;                    // Задаём тип контроля чётности (USART_CR1_PS = 0 ( 0 - чёт, 1 - нечет.))
   USART1->CR1 &= ~USART_CR1_PCE;               // Отключаем проверку чётности (USART_CR1_PCE = 0)
   USART1->CR2 &= ~USART_CR2_STOP;              // 1 стоп-бит  (USART_CR2_STOP = 00)
-//  USART1->BRR = 0x1D40;                        // Скорость обмена 9600 бод
-  USART1->BRR = 0x271;                         // Скорость обмена 115200 бод
+  USART1->BRR = 0x1D40;                        // Скорость обмена 9600 бод
+//  USART1->BRR = 0x271;                         // Скорость обмена 115200 бод
    // т.е. в итоге получаем 115200 8N1
   USART1->CR1 |= USART_CR1_TE | USART_CR1_RE;  // Включаем передачу и приём по USART1  
   USART1->CR1 |= USART_CR1_RXNEIE;             // Включаем прерывание при получении данных по USART1    

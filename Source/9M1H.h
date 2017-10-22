@@ -7,7 +7,11 @@
 //------------------------------------              Inteface               ---------------------------------------------
 //======================================================================================================================
 
-unsigned int function FormGSM_Message(unsigned char Byte);
+unsigned int USART1_FormMsg(unsigned char Data);
+unsigned int USART1_Send_RX_Msg(char* Msg);
+void ProcessingMessage(void);
+void AnaliseExecuteMsg(char* Msg);
+void InitVar(void);
  
 //==============================================================================
 #endif //__USER_CONFIG_H

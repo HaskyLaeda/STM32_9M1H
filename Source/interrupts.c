@@ -30,8 +30,8 @@ void USART1_IRQHandler(void)
 ////    USART_ClearITPendingBit(USART1, USART_IT_TC);
    
   if (USART1->SR & USART_SR_RXNE) {
-    DataByte = USART1->DR;
-    USART1->DR = (unsigned char) DataByte;
+    DataByte = USART1->DR;        
+    USART1_FormMsg((unsigned char) DataByte);          
   }     
 }
 
